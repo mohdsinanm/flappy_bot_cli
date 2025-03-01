@@ -12,7 +12,7 @@ The Flappy bot Game is a fun and engaging text-based game inspired by the classi
 
 ## Installation
 - To run the game, you need to have Python installed on your machine. 
-- Currently this game only support in windows
+- Currently this game only supported on windows
 
    ```
    git clone https://github.com/mohdsinanm/flappy_bot_cli
