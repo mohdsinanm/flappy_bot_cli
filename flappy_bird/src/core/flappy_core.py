@@ -1,7 +1,9 @@
-import subprocess, random, time, threading, emoji
+import subprocess, time, emoji
 import keyboard
-from src.utils.Start import SetupGame, SetupCharacter
-from src.utils.spwaners import life_spawner
+from src.common.Start import SetupGame, SetupCharacter
+from src.common.Physics import GamePhysics
+from src.utils.spwaners import *
+from src.utils.detecters import *
 character = SetupCharacter()
 
 c = character.i
@@ -11,7 +13,35 @@ hit_sprite = character.hit_sprite
 count = character.count #score
 hit = character.hit #life
 
-def main():
+def flappy_main():
+    """
+    Main game loop for a text-based game that simulates a character navigating through obstacles.
+
+    This function initializes the game setup, manages the game loop, and handles the rendering of the game state.
+    It continuously updates the game state based on player interactions and physics, checks for collisions,
+    and manages scoring and lives. The game runs until the player loses all lives or reaches a defined boundary.
+
+    The game features:
+    - A view window that moves to simulate scrolling.
+    - Obstacles represented by chains and a playable character represented by an alien monster emoji.
+    - Life and score mechanics that affect gameplay.
+    - Collision detection with obstacles and boundaries.
+    - A speed control mechanism that adjusts the game speed based on the player's score.
+
+    Global variables used:
+        - c: Current vertical position of the playable character.
+        - d: Current horizontal position of the playable character.
+        - hit: Number of hits taken by the player.
+        - hit_sprite: Boolean flag indicating if a collision has occurred.
+        - kill: Boolean flag indicating if the game should end.
+
+    Returns:
+        bool: True if the game ends due to a loss of life or boundary collision, False otherwise.
+
+    Note:
+        The function uses the `emoji` library for rendering emojis and `subprocess` for clearing the console.
+        The game speed is controlled by a multiplier that decreases as the score increases.
+    """
 
     global c,d,hit,hit_sprite, kill
     multip = 0.1 # this will controls the speed of the game , if increased the speed will reduce
@@ -48,26 +78,14 @@ def main():
                         else:
                             print(" ", end="")
 
-                    life_spawner(life, i , j, l_c, a, c, d  )
-                    if life:#life multiplier
-                        # there is a 1 in 10 chances of getting life multilier
-                        #if life is true when j reaches a-20 it will print a heart 
-                        if j == a-20 and i == l_c:
-                            print(emoji.emojize(":red_heart:"), end="")
-                            if ({c-1,d} == {j,l_c}) or ({c+1,d} == {j,l_c}) or ({c,d} == {j,l_c}):#this check the coordinate of bird is equal to the coordinale of heart
-                                hit +=1 #give one heart
-                                life = False #then make it invisible
+                    
+                    if life_spawner(life, i , j, l_c, a, c, d ):
+                        hit += 1
+                        life = False
 
-                    if score:#score multiplier
-                        # there is a 1 in 20 chances of getting score multilier
-                        #if score is true when j reaches a-20 it will print a cross mark
-                        if j == a-20 and i == s_c:
-                            print(emoji.emojize(":cross_mark:"), end="")
-                            if({c-1,d} == {j,l_c}) or ({c+1,d} == {j,l_c}) or ({c,d} == {j,l_c}):#this check the coordinate of bird is equal to the coordinale of cross mark
-                                count *= 2 #doubles the scores
-                                score = False #then make it invisible
-
-                            
+                    if muliplier_spawner(score, i, j , s_c, a, c, d):
+                        count *= 2 
+                        score = False
 
                     if i == c and j == d:#printing the playable object
                         print(emoji.emojize(":alien_monster:"), end="")
@@ -77,7 +95,8 @@ def main():
                             
                             hit_sprite= False
             #physics
-            c += 1 #added physics(gravity 1 block per iteration) and removed the up navigation
+            physics = GamePhysics()
+            c += physics.gravity_increment #added physics(gravity 1 block per iteration) and removed the up navigation
 
             if a == d:#collision identifier  and hiting monitering
                 if c in {b, b+1, b+2,b+3}:#if the position of a ( the position of the pipe) = the position of bird (d) check if the c cordinate is in the predicted random cordinate b,b+1,b+2
@@ -87,35 +106,24 @@ def main():
                     hit_sprite = True
 
             # life detction
-            if hit == 0:
-                subprocess.run("cls", shell =True)
-                print("GAME OVER")
-                print("SCORE = [ {} ]\n\n".format(count))
-
+            if hit_detection(hit, count):
                 kill = True
                 a = 0
                 break
-            
+
             # lower boundary detection
-            if c >= 25: # 21 because max hieght of the window is 20 ( first for loop)
-                subprocess.run("cls", shell =True)
-                print("GAME OVER")
-                print("SCORE = [ {} ]\n\n".format(count))
-
+            if lower_boundary_detection(c, count):
 
                 kill = True
                 a = 0
                 break
+
             # upper  boundary detection
-            if c <= 0:
-                subprocess.run("cls", shell =True)
-                print("GAME OVER")
-                print("SCORE = [ {} ]\n\n".format(count))
-
-
+            if upper_boundary_detection(c, count):
                 kill = True
                 a = 0
                 break
+
             #execution
             if kill: 
                 break    
@@ -128,8 +136,6 @@ def main():
                     multip *= .99
                 
             time.sleep(multip)
-                    
-           
             print("Score [ {} ]".format(count)+(emoji.emojize(":red_heart:"*hit)), end="")
             
 
@@ -144,6 +150,28 @@ def main():
 
 
 def key():
+    """
+    Monitors keyboard input to control the playable character's actions in the game.
+
+    This function runs in an infinite loop, checking for specific key presses:
+    - Pressing "w" decreases the vertical position of the playable character (c) by 2,
+      effectively allowing the character to jump or counteract gravity.
+    - Pressing "x" sets the global variable `kill` to True, signaling that the game should end.
+
+    The function will terminate when the `kill` variable is set to True, either by pressing "x"
+    or by other game conditions that may set `kill` to True.
+
+    Global variables used:
+        - c: Current vertical position of the playable character.
+        - kill: Boolean flag indicating if the game should end.
+
+    Returns:
+        bool: True if the game should end (when `kill` is set to True), False otherwise.
+    
+    Note:
+        This function relies on the `keyboard` library to detect key presses.
+        It runs indefinitely until the game is signaled to end.
+    """
     
     global c
     while True:
