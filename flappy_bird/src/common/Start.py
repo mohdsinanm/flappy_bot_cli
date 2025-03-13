@@ -47,7 +47,7 @@ class SetupGame:
         self.passage_space = random.randint(5, 15)  # Space for producing the passage
 
         self.life_coordinate = random.randint(5, 10)  # Coordinate for life pickups
-        self.life = random.choice([False * 10] + [True * 1])  # Randomly determine if a life is available
+        self.life = random.choice([False ] * 10 + [True]  * 1)  # Randomly determine if a life is available
 
         self.score_coordinate = random.randint(5, 10)  # Coordinate for score multipliers
-        self.score = random.choice([False * 20] + [True * 1])  # Randomly determine if a score multiplier is available
+        self.score = random.choice([False]  * 30 + [True] * 1)  # Randomly determine if a score multiplier is available
