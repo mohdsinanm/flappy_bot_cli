@@ -55,6 +55,8 @@ def flappy_main():
 
         s_c = game_setup.score_coordinate #this random choice determine the coordinates of multiplier cross
         score = game_setup.score
+
+        clear_cmd = game_setup.clear_cmd
         
         while True:     
             global count  
@@ -140,7 +142,7 @@ def flappy_main():
             
 
             
-            subprocess.run("cls", shell =True)
+            subprocess.run(clear_cmd, shell =True)
             if a <= 0:break
         
         count += 1
