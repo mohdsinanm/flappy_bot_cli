@@ -1,4 +1,8 @@
 import subprocess
+from src.common.Start import SetupGame
+
+game_obj = SetupGame()
+clear_cmd = game_obj.clear_cmd
 
 def hit_detection(hit: int, count: int) -> bool:
     """
@@ -17,7 +21,7 @@ def hit_detection(hit: int, count: int) -> bool:
     """
     
     if hit == 0:
-        subprocess.run("cls", shell=True)
+        subprocess.run(clear_cmd, shell=True)
         print("GAME OVER")
         print("SCORE = [ {} ]\n\n".format(count))
         return True
@@ -40,7 +44,7 @@ def lower_boundary_detection(lower_boundary_limit: int, count: int) -> bool:
     """
     
     if lower_boundary_limit >= 25:  # 25 is the defined lower boundary limit
-        subprocess.run("cls", shell=True)
+        subprocess.run(clear_cmd, shell=True)
         print("GAME OVER")
         print("SCORE = [ {} ]\n\n".format(count))
         return True
@@ -63,7 +67,7 @@ def upper_boundary_detection(upper_boundary_limit: int, count: int) -> bool:
     """
     
     if upper_boundary_limit <= 0:  # 0 is the defined upper boundary limit
-        subprocess.run("cls", shell=True)
+        subprocess.run(clear_cmd, shell=True)
         print("GAME OVER")
         print("SCORE = [ {} ]\n\n".format(count))
         return True
