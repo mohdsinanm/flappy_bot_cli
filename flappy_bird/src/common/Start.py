@@ -43,6 +43,10 @@ class SetupGame:
     """
     
     def __init__(self):
+
+        self.x_window = 25
+        self.y_window = 80
+
         self.view_window_length = 70  # Controls the visibility (view window)
         self.passage_space = random.randint(5, 15)  # Space for producing the passage
 

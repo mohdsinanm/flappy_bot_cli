@@ -38,6 +38,8 @@ def startup_screen():
 
     Use 'W' key to jump
     Use 'X' to stop the game
+                                
+                                Please expand your window to maximum size
     """
 
 if __name__ == '__main__':
