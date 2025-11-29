@@ -50,6 +50,9 @@ def flappy_main():
         a = game_setup.view_window_length  #this variable controls the visibility (view window) decrease to shorten the window,together with second fore loop
         b = game_setup.passage_space # var for producing the passage
 
+        x_window = game_setup.x_window
+        y_window = game_setup.y_window
+
         l_c = game_setup.life_coordinate #this random choice determine the coordinate of life
         life = game_setup.life
 
@@ -60,9 +63,9 @@ def flappy_main():
         
         while True:     
             global count  
-            for i in range(25):
+            for i in range(x_window):
                 print()
-                for j in range(80):#for the collision object
+                for j in range(y_window):#for the collision object
                     if j == a or j == a+5:
                         if i == b:
                             continue
@@ -75,7 +78,7 @@ def flappy_main():
                         print(emoji.emojize(":chains:"), end="")
 
                     else:
-                        if i == 23:#when the i (the vertical componant) hit 23 the lower boundary is printed,else evry time space is printed
+                        if i == (x_window-2):#when the i (the vertical componant) hit 23 the lower boundary is printed,else evry time space is printed
                             print('_',end='')
                         else:
                             print(" ", end="")
@@ -134,7 +137,7 @@ def flappy_main():
             # window speed       
             a -= 1
             if count%1 == 0 and count != 0:#it will increase the speed by decreaseing the delay according to the score
-                if a == 69:
+                if a == a-1:
                     multip *= .99
                 
             time.sleep(multip)
