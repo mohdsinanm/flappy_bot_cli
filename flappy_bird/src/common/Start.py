@@ -1,5 +1,5 @@
 import random
-
+import platform
 
 class SetupCharacter:
     """
@@ -51,3 +51,8 @@ class SetupGame:
 
         self.score_coordinate = random.randint(5, 10)  # Coordinate for score multipliers
         self.score = random.choice([False]  * 30 + [True] * 1)  # Randomly determine if a score multiplier is available
+
+        if platform.uname().system == 'Linux':
+            self.clear_cmd = "clear"
+        else:
+            self.clear_cmd = 'cls'

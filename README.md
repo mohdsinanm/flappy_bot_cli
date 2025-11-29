@@ -15,7 +15,7 @@ The Flappy bot Game is a fun and engaging text-based game inspired by the classi
 
 ## Installation
 - To run the game, you need to have Python installed on your machine. 
-- Currently this game only supported on windows
+- For Windows use the following commands
 
    ```
    git clone https://github.com/mohdsinanm/flappy_bot_cli
@@ -24,5 +24,17 @@ The Flappy bot Game is a fun and engaging text-based game inspired by the classi
    pip install -r requirements.txt
 
    python flappy_bird/__main__.py
+
+   ```
+
+- On Linux, the keyboard module may require superuser privileges. To run your script with the necessary permissions, use the following command
+
+   ```
+   git clone https://github.com/mohdsinanm/flappy_bot_cli
+   cd flappy_bot_cli
+
+   pip install -r requirements.txt
+
+   sudo python flappy_bird/__main__.py
 
    ```
