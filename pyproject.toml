@@ -5,10 +5,11 @@ description = "This is a cli flappy bird game"
 authors = ["mohdzsinanm <mohamedysf@bicpu.edu.in>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 keyboard = "^0.13.5"
 emoji = "^2.14.1"
 pynput = "^1.7.7"
+numpy = "^2.4.3"
 
 [tool.poetry.dev-dependencies]
 

@@ -1,9 +1,14 @@
 import subprocess, time, emoji
 import keyboard
-from src.common.Start import SetupGame, SetupCharacter
-from src.common.Physics import GamePhysics
-from src.utils.spwaners import *
-from src.utils.detecters import *
+from ..common.Start import SetupGame, SetupCharacter
+from ..common.Physics import GamePhysics
+from ..utils.spwaners import *
+from ..utils.detecters import *
+from ..ai.game_sensor import GameSensor
+from ..ai.ai_game_runner import EnhancedGameSensor
+from ..ai.neural_net import NeuralNetwork
+import numpy as np
+
 character = SetupCharacter()
 
 c = character.i
@@ -12,6 +17,8 @@ kill = character.kill
 hit_sprite = character.hit_sprite
 count = character.count #score
 hit = character.hit #life
+a = 0  # view window position
+b = 0  # gap position
 
 def flappy_main():
     """
@@ -43,7 +50,7 @@ def flappy_main():
         The game speed is controlled by a multiplier that decreases as the score increases.
     """
 
-    global c,d,hit,hit_sprite, kill
+    global c,d,hit,hit_sprite, kill, a, b
     multip = 0.1 # this will controls the speed of the game , if increased the speed will reduce
     while True:
         game_setup = SetupGame()
@@ -60,6 +67,8 @@ def flappy_main():
         score = game_setup.score
 
         clear_cmd = game_setup.clear_cmd
+
+        
         
         while True:     
             global count  
@@ -190,3 +199,65 @@ def key():
     return kill
 
 
+def ai_key():
+    """
+    AI input provider that makes decisions based on the game state.
+    Uses the corrected neural network model to decide when to jump.
+    Replaces keyboard input with AI decisions.
+    """
+    global c, d, a, b, kill, count
+    
+    # Load corrected AI model
+    try:
+        nn = NeuralNetwork(input_size=12, hidden_size=32, output_size=2)
+        data = np.load('models/learned_synthetic_corrected.npy', allow_pickle=True).item()
+        nn.W1 = data['W1']
+        nn.b1 = data['b1']
+        nn.W2 = data['W2']
+        nn.b2 = data['b2']
+        print(f"[AI] Model loaded successfully. Weights shape: W1={nn.W1.shape}, W2={nn.W2.shape}")
+    except Exception as e:
+        print(f"[AI] Error loading model: {e}")
+        import traceback
+        traceback.print_exc()
+        return
+    
+    previous_c = c
+    iteration = 0
+    decision_count = [0, 0]  # [fall, jump]
+    
+    while True:
+        try:
+            # Get current game state
+            state = EnhancedGameSensor.get_enhanced_state(c, d, a, b, previous_c)
+            pred, prob = nn.predict(state)
+            action = int(pred[0])  # pred is already the argmax result
+            previous_c = c
+            
+            # Track decisions
+            decision_count[action] += 1
+            
+            # Execute AI action
+            if action == 1:  # Jump
+                c -= 2
+            
+            # Detailed logging every 100 iterations
+            if iteration % 100 == 0:
+                gap_center = b + 1.5
+                print(f"\n[AI] Iter {iteration}: pos={c:.1f}, gap={gap_center:.1f}, d={d:.1f}, a={a:.1f}, prob={prob}, action={action}")
+            
+            iteration += 1
+        except Exception as e:
+            print(f"[AI] Error during prediction at iteration {iteration}: {e}")
+            import traceback
+            traceback.print_exc()
+            break
+        
+        # Small delay to not overwhelm the main loop
+        time.sleep(0.001)
+        
+        if kill:
+            break
+    
+    print(f"[AI] Game ended. Total iterations: {iteration}, Score: {count}, Decisions: Fall={decision_count[0]}, Jump={decision_count[1]}")
+    return kill
